@@ -6,7 +6,12 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-cred = credentials.Certificate(os.getenv('FIREBASE_CRED_PATH'))
+# Usa la ruta predeterminada para Cloud Run, con depuración
+cred_path = os.getenv('FIREBASE_CRED_PATH', '/app/firebase-cred.json')
+print(f"Checking credentials path: {cred_path}")
+if not os.path.exists(cred_path):
+    raise ValueError(f"Firebase credentials file not found at {cred_path}")
+cred = credentials.Certificate(cred_path)
 initialize_app(cred)
 db = firestore.client()
 
