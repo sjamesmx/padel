@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply bg-black text-white font-sans antialiased min-h-screen !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-lime-light text-noir-eclipse font-medium rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 active:opacity-90 transition-all shadow-sm hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-obsidian-wave text-white font-medium rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 active:opacity-90 transition-all border border-royal-nebula/40;
+  }
+
+  .card {
+    @apply bg-obsidian-wave rounded-xl p-4 border border-royal-nebula/30 shadow-sm;
+  }
+
+  .card-dark {
+    @apply bg-obsidian-wave rounded-xl p-4 border border-royal-nebula/20 shadow-sm;
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors;
+  }
+
+  .nav-item.active {
+    @apply text-lime-light;
+  }
+
+  .shadow-apple {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Apple-inspired input styling */
+  input,
+  select,
+  textarea {
+    @apply bg-obsidian-wave border border-royal-nebula/40 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-lime-light/50 transition-all;
+  }
+}
