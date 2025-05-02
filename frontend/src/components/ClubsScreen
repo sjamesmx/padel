@@ -1,0 +1,47 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const ClubsScreen = () => {
+  const [name, setName] = useState('');
+  const [city, setCity] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleCreateClub = async () => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/clubs/create', {
+        name,
+        city,
+      });
+      setMessage(`Club creado: ${response.data.club_id}`);
+    } catch (error) {
+      console.error('Error creating club:', error);
+      setMessage('Error al crear club');
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl">Crear Club</h2>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Nombre del club"
+        className="border p-2 mt-2 w-full"
+      />
+      <input
+        type="text"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        placeholder="Ciudad"
+        className="border p-2 mt-2 w-full"
+      />
+      <button onClick={handleCreateClub} className="bg-blue-600 text-white p-2 mt-4">
+        Crear Club
+      </button>
+      {message && <p>{message}</p>}
+    </div>
+  );
+};
+
+export default ClubsScreen;

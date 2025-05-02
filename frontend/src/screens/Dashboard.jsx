@@ -30,6 +30,7 @@ import '../styles/globals.css';
 const Dashboard = () => {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('overview');
 
@@ -40,25 +41,33 @@ const Dashboard = () => {
         setTimeout(() => {
           navigate('/login');
         }, 2000);
+        setLoading(false);
         return;
       }
 
       try {
-        const response = await axios.get(`https://padelyzer-backend-725346030775.us-central1.run.app/get_profile?user_id=${user.uid}`);
+        const response = await axios.get('https://padelyzer-backend-725346030775.us-central1.run.app/api/get_profile', {
+          headers: { Authorization: user.uid }
+        });
         setProfile(response.data);
       } catch (err) {
         setError('Error al obtener el perfil. Intenta de nuevo.');
+      } finally {
+        setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, [navigate, error]);
 
   const views = [
     { id: 'overview', label: 'Resumen' },
     { id: 'performance', label: 'Rendimiento' },
     { id: 'training', label: 'Entrenamiento' },
   ];
+
+  if (loading) return <div className="p-4 text-white">Cargando...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -100,14 +109,14 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500/40 to-lime-light/40 rounded-2xl flex items-center justify-center shadow-sm">
-                <span className="text-xl font-semibold text-white">87</span>
+                <span className="text-xl font-semibold text-white">{profile ? profile.padel_iq : '87'}</span>
               </div>
               <div>
                 <div className="flex items-center gap-1">
                   <h3 className="font-semibold text-lg mb-0">Pádel IQ</h3>
                   <InfoTooltip content="El Pádel IQ es una medida de tu nivel general como jugador, basada en tus habilidades técnicas, tácticas y físicas." />
                 </div>
-                <p className="text-xs text-gray-400 capitalize">{profile ? profile.level : 'Nivel'}</p>
+                <p className="text-xs text-gray-400 capitalize">{profile ? profile.fuerza : 'Fuerza'}</p>
                 <div className="flex items-center mt-0.5 text-lime-light text-xs">
                   <TrendingUp className="w-3 h-3 mr-1" />
                   <span>+5% último mes</span>

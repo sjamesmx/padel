@@ -1,0 +1,15 @@
+meta {
+  name: Get Profile
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://padelyzer-backend-725346030775.us-central1.run.app/get_profile?user_id=test789
+  body: none
+  auth: inherit
+}
+
+params:query {
+  user_id: test789
+}

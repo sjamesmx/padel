@@ -1,0 +1,15 @@
+meta {
+  name: Create Profile
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/create_profile
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"user_id": "test456", "name": "New User", "email": "new@example.com", "level": "intermediate", "location": "Mexico"}
+}

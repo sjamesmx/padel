@@ -1,0 +1,15 @@
+meta {
+  name: Create Profile
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://padelyzer-backend-725346030775.us-central1.run.app/create_profile
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"user_id": "test789", "name": "Cloud User", "email": "cloud@example.com", "level": "advanced", "location": "Mexico"}
+}

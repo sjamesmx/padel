@@ -1,7 +1,6 @@
-.env
-firebase-cred.json
-.env
-backend/firebase-cred.json
+node_modules/
+venv/
+*.pyc
+__pycache__/
 .DS_Store
-backend/__pycache__/
-bruno/
+firebase-cred.json
