@@ -33,7 +33,6 @@ function App() {
           <Route path="/reset-password" element={!user ? <ResetPasswordScreen /> : <Navigate to="/onboarding" />} />
           <Route path="/onboarding" element={user ? <OnboardingScreen /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-          <Route path="/clubs" element={user ? <ClubsScreen /> : <Navigate to="/login" />} />
           <Route path="/" element={<SplashScreen />} />
         </Routes>
       </div>
