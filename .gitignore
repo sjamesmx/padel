@@ -5,3 +5,9 @@ __pycache__/
 .DS_Store
 firebase-cred.json
 bruno/
+backend/__pycache__/
+backend/venv/
+backend/backend/venv/
+backend/backend/__pycache__/
+backend/backend/firebase-cred.json
+backend/backend/.env

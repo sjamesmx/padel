@@ -2,63 +2,69 @@ import cv2
 import numpy as np
 import requests
 import os
+import logging
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def analyze_video(url, stroke):
-    # Descargar el video
-    response = requests.get(url)
-    video_path = f"/tmp/{stroke}.mp4"
-    with open(video_path, "wb") as f:
-        f.write(response.content)
+    try:
+        # Validar la URL
+        if not url.startswith("http://") and not url.startswith("https://"):
+            raise ValueError("Invalid URL: Must start with http:// or https://")
 
-    # Análisis básico con OpenCV (simulado por ahora)
-    cap = cv2.VideoCapture(video_path)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
+        logger.info(f"Downloading video for {stroke} from {url}")
+        # Descargar el video con un timeout más corto
+        response = requests.get(url, timeout=5, stream=True)
+        response.raise_for_status()  # Lanza una excepción si la solicitud falla
 
-    # Simular métricas (en el futuro, usar MediaPipe o YOLO)
-    metrics = {
-        "golpeo": {stroke: np.random.uniform(50, 90)},
-        "movimiento": {
-            "velocidad": np.random.uniform(40, 80),
-            "reaccion": np.random.uniform(50, 85),
-            "cobertura": np.random.uniform(45, 90)
-        },
-        "tecnica": {
-            "efectividad": np.random.uniform(50, 90),
-            "precision": np.random.uniform(40, 85),
-            "consistencia": np.random.uniform(45, 80)
+        video_path = f"/tmp/{stroke}.mp4"
+        with open(video_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:  # Filtra chunks vacíos
+                    f.write(chunk)
+
+        logger.info(f"Processing video for {stroke}")
+        # Validación básica del video (simulación de detección de movimientos)
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError("Could not open video file")
+
+        # Verificar duración del video
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        if fps == 0 or frame_count == 0:
+            raise ValueError("Invalid video: Could not determine duration or frame rate")
+
+        duration = frame_count / fps
+        if duration < 3:  # Suponemos que un video de pádel debe durar al menos 3 segundos
+            raise ValueError("Video too short: No detectable paddle movements")
+
+        # Simulación de validación de movimientos (reemplazar con MediaPipe más adelante)
+        if "URL_" in url:
+            raise ValueError("No detectable paddle movements in the provided video sample")
+
+        # Simular métricas (en el futuro, usar MediaPipe o YOLO)
+        metrics = {
+            "golpeo": {stroke: np.random.uniform(50, 90)},
+            "movimiento": {
+                "velocidad": np.random.uniform(40, 80),
+                "reaccion": np.random.uniform(50, 85),
+                "cobertura": np.random.uniform(45, 90)
+            },
+            "tecnica": {
+                "efectividad": np.random.uniform(50, 90),
+                "precision": np.random.uniform(40, 85),
+                "consistencia": np.random.uniform(45, 80)
+            }
         }
-    }
 
-    cap.release()
-    os.remove(video_path)
-    return metrics
-
-def calculate_padel_iq(metrics):
-    # Calcular puntajes promedio por categoría
-    golpeo_score = sum(metric["golpeo"].values() for metric in metrics.values()) / sum(len(metric["golpeo"]) for metric in metrics.values())
-    movimiento_score = sum(sum(metric["movimiento"].values()) for metric in metrics.values()) / sum(len(metric["movimiento"]) for metric in metrics.values())
-    tecnica_score = sum(sum(metric["tecnica"].values()) for metric in metrics.values()) / sum(len(metric["tecnica"]) for metric in metrics.values())
-
-    # Calcular Padel IQ (promedio ponderado)
-    padel_iq = (0.4 * golpeo_score + 0.3 * movimiento_score + 0.3 * tecnica_score)
-
-    # Clasificar en fuerza
-    if padel_iq >= 85:
-        fuerza = "Primera Fuerza (Profesional)"
-    elif padel_iq >= 70:
-        fuerza = "Segunda Fuerza (Avanzado)"
-    elif padel_iq >= 55:
-        fuerza = "Tercera Fuerza (Intermedio-Avanzado)"
-    elif padel_iq >= 40:
-        fuerza = "Cuarta Fuerza (Intermedio)"
-    elif padel_iq >= 25:
-        fuerza = "Quinta Fuerza (Principiante-Intermedio)"
-    else:
-        fuerza = "Sexta Fuerza (Principiante)"
-
-    return padel_iq, fuerza, {
-        "golpeo": {k: v for metric in metrics.values() for k, v in metric["golpeo"].items()},
-        "movimiento": {k: sum(metric["movimiento"][k] for metric in metrics.values()) / len(metrics) for k in metrics[list(metrics.keys())[0]]["movimiento"]},
-        "tecnica": {k: sum(metric["tecnica"][k] for metric in metrics.values()) / len(metrics) for k in metrics[list(metrics.keys())[0]]["tecnica"]}
-    }
+        cap.release()
+        os.remove(video_path)
+        logger.info(f"Finished processing video for {stroke}")
+        return metrics
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Failed to download video: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Error processing video: {str(e)}")
