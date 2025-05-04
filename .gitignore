@@ -11,3 +11,27 @@ backend/backend/venv/
 backend/backend/__pycache__/
 backend/backend/firebase-cred.json
 backend/backend/.env
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+
+# IDEs
+.DS_Store
+.idea/
+.vscode/
+
+# Node.js
+node_modules/
+dist/
+
+# Otros
+*.log
+frontend/build/
+*.swp
+*.swo

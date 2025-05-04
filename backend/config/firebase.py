@@ -1,23 +1,24 @@
+from firebase_admin import credentials, firestore, storage, initialize_app
 import os
-from firebase_admin import credentials, firestore, initialize_app, storage
-from dotenv import load_dotenv
+import logging
 
-# Cargar variables de entorno desde .env
-load_dotenv()
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("Starting firebase.py import process")
 
-# Inicializar Firebase y definir db y bucket globalmente
-cred_path = os.getenv('FIREBASE_CRED_PATH', '/app/firebase-cred.json')
-print(f"Checking credentials path: {cred_path}")
-if not os.path.exists(cred_path):
-    raise ValueError(f"Firebase credentials file not found at {cred_path}")
-cred = credentials.Certificate(cred_path)
-
-# Especificar el storageBucket al inicializar la app
-firebase_config = {
-    'storageBucket': 'padelyzer-app.firebasestorage.app'  # Nombre del bucket proporcionado
-}
-initialize_app(cred, firebase_config)
-
-# Definir db y bucket como variables globales
-db = firestore.client()
-bucket = storage.bucket()
+try:
+    # Inicializar Firebase
+    cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '/app/backend/firebase-cred.json')
+    logger.info(f"Checking credential path: {cred_path}")
+    cred = credentials.Certificate(cred_path)
+    logger.info("Loaded credentials")
+    initialize_app(cred, {
+        'storageBucket': 'padelyzer-app.firebasestorage.app'
+    })
+    logger.info("Initialized Firebase app")
+    db = firestore.client()
+    bucket = storage.bucket()
+except Exception as e:
+    logger.error(f"Error initializing Firebase: {str(e)}", exc_info=True)
+    raise
