@@ -9,12 +9,12 @@ logger.info("Starting firebase.py import process")
 
 try:
     # Inicializar Firebase
-    cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '/app/backend/firebase-cred.json')
+    cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '/app/firebase-cred.json')
     logger.info(f"Checking credential path: {cred_path}")
     cred = credentials.Certificate(cred_path)
     logger.info("Loaded credentials")
     initialize_app(cred, {
-        'storageBucket': 'padelyzer-app.firebasestorage.app'
+        'storageBucket': 'pdzr-458820.firebasestorage.app'
     })
     logger.info("Initialized Firebase app")
     db = firestore.client()

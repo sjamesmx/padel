@@ -1,0 +1,27 @@
+Ignorar archivos y directorios innecesarios
+.git
+.gitignore
+node_modules/
+*.pyc
+pycache/
+.pytest_cache/
+*.log
+frontend/build/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+venv/
+backend/venv/
+env/
+*.egg-info/
+Incluir archivos necesarios
+!backend/firebase-cred.json
+!backend/main.py
+!backend/requirements.txt
+!backend/routes/
+!backend/config/
+!backend/utils/
+!backend/scripts/
+!Dockerfile
