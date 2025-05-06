@@ -1,43 +1,47 @@
-from flask import Flask
-from flask_cors import CORS
 import logging
-import os
+from flask import Flask
+from routes.padel_iq import padel_iq_bp
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 logger.info("Starting main.py import process")
 
+# Importar y registrar el blueprint para profile
+logger.info("Attempting to import routes.profile")
 try:
-    logger.info("Attempting to import routes.profile")
-    from routes.profile import get_profile
+    from routes.profile import profile_bp
     logger.info("Successfully imported routes.profile")
-except Exception as e:
-    logger.error(f"Error importing routes.profile: {str(e)}", exc_info=True)
+except ImportError as e:
+    logger.error(f"Error importing routes.profile: {e}")
     raise
 
+# Importar y registrar el blueprint para padel_iq
+logger.info("Attempting to import routes.padel_iq")
 try:
-    logger.info("Attempting to import routes.padel_iq")
-    from routes.padel_iq import calculate_padel_iq
     logger.info("Successfully imported routes.padel_iq")
-except Exception as e:
-    logger.error(f"Error importing routes.padel_iq: {str(e)}", exc_info=True)
+except ImportError as e:
+    logger.error(f"Error importing routes.padel_iq: {e}")
     raise
 
+# Inicializar Firebase
+logger.info("Attempting to import config.firebase")
 try:
-    logger.info("Attempting to import config.firebase")
-    from config.firebase import db, bucket
+    from config.firebase import initialize_firebase
+    initialize_firebase()
     logger.info("Successfully imported config.firebase")
-except Exception as e:
-    logger.error(f"Error importing config.firebase: {str(e)}", exc_info=True)
+except ImportError as e:
+    logger.error(f"Error importing config.firebase: {e}")
     raise
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# Configurar la aplicación Flask
 logger.info("Starting Flask application")
+app = Flask(__name__)
 
-app.route('/api/get_profile', methods=['GET'])(get_profile)
-app.route('/api/calculate_padel_iq', methods=['POST'])(calculate_padel_iq)
+# Registrar blueprints
+app.register_blueprint(padel_iq_bp)
+app.register_blueprint(profile_bp)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
+    app.run(host='0.0.0.0', port=8080)
