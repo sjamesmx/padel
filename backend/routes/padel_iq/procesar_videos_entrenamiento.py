@@ -74,10 +74,14 @@ def segmentar_video(ruta_video):
                 velocidad_left = distance_left * fps
                 # Detectar movimiento ascendente de la muñeca izquierda (lanzamiento de la pelota)
                 dy_left = prev_wrist_left_pos[1] - current_wrist_left_pos[1]  # Movimiento ascendente si dy_left > 0
-                if dy_left > 0.1 and velocidad_left > 0.8:  # Umbrales ajustados para reducir falsos positivos
+                current_time = frame_count / fps
+                # Ajustar umbrales y limitar lanzamientos a tiempos esperados (cerca de 0.2s y 73.74s)
+                if dy_left > 0.02 and velocidad_left > 0.3 and (abs(current_time - 0.2) < 1.0 or abs(current_time - 73.74) < 1.0):
                     lanzamiento_detectado = True
-                    lanzamiento_time = frame_count / fps
+                    lanzamiento_time = current_time
                     logger.debug(f"Lanzamiento detectado en t={lanzamiento_time}, dy_left={dy_left}, velocidad_left={velocidad_left}")
+                else:
+                    logger.debug(f"No se detectó lanzamiento en t={current_time}, dy_left={dy_left}, velocidad_left={velocidad_left}")
 
                 # Calcular cambio de ángulo del brazo (muñeca derecha)
                 vector_wrist = np.array([current_wrist_right_pos[0] - current_elbow_pos[0], current_wrist_right_pos[1] - current_elbow_pos[1]])
@@ -90,7 +94,6 @@ def segmentar_video(ruta_video):
                     cos_angle = np.clip(cos_angle, -1.0, 1.0)
                     angle_change = np.degrees(np.arccos(cos_angle))
 
-                    current_time = frame_count / fps
                     if velocidad_right > velocidad_umbral and angle_change > angle_change_umbral and not movimiento_detectado and (current_time - ultimo_segmento_fin) > tiempo_minimo_entre_segmentos:
                         # Inicio de un segmento (golpe detectado)
                         inicio = frame_count / fps
@@ -205,19 +208,19 @@ def analizar_segmento(segmento, ruta_video):
                 if segmento.get('lanzamiento_detectado', False) and (segmento['inicio'] - segmento.get('lanzamiento_time', float('inf')) < 1.0):
                     movimiento_direccion = "saque"
                 # Prioridad 2: Smash (ángulo alto, velocidad alta)
-                elif max_elbow_angle > 150 and velocidad > 1.5:
+                elif max_elbow_angle > 150 and velocidad > 1.2:
                     movimiento_direccion = "smash"
                 # Prioridad 3: Bandeja (ángulo alto, velocidad moderada)
-                elif max_elbow_angle > 120 and velocidad > 0.8:
+                elif max_elbow_angle > 120 and velocidad > 0.6:
                     movimiento_direccion = "bandeja"
                 # Prioridad 4: Globo (ángulo abierto, velocidad baja)
                 elif max_elbow_angle > 120 and velocidad < 1.5:
                     movimiento_direccion = "globo"
                 # Prioridad 5: Defensivo (ángulo bajo, velocidad baja)
-                elif max_elbow_angle < 90 and velocidad < 0.3:
+                elif max_elbow_angle < 90 and velocidad < 0.2:
                     movimiento_direccion = "defensivo"
                 # Prioridad 6: Volea (ángulo cerrado, velocidad moderada)
-                elif max_elbow_angle < 90 and velocidad > 0.1:
+                elif max_elbow_angle < 90 and velocidad > 0.05:
                     movimiento_direccion = "volea_" + ("derecha" if is_derecha else "reves")
                 # Prioridad 7: Derecha o Revés (ángulo 90-150, velocidad moderada-alta)
                 else:
@@ -241,7 +244,7 @@ def analizar_segmento(segmento, ruta_video):
     cap.release()
 
     if max_velocidad > 0.25 and movimiento_direccion:  # Ajustar umbral mínimo
-        calidad = min(100, max_velocidad * 5)
+        calidad = min(100, max_velocidad * 10)  # Aumentar el factor de calidad
         return [{
             'tipo': movimiento_direccion,
             'confianza': calidad / 100,

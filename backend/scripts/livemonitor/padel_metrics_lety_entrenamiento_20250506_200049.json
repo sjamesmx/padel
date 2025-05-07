@@ -1,0 +1,172 @@
+{
+    "player_name": "Lety",
+    "session_type": "entrenamiento",
+    "detected_strokes": {
+        "smash": [
+            {
+                "inicio": 1.0757310390472412,
+                "fin": 3.0470101833343506,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 158.3910398686069,
+                "posicion_cancha": "red",
+                "player_position": "2"
+            },
+            {
+                "inicio": 12.467205047607422,
+                "fin": 14.936896085739136,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 168.38551275202084,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 27.91438317298889,
+                "fin": 30.725134134292603,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 165.40596431681607,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 39.94334006309509,
+                "fin": 42.674437046051025,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 162.3048632188385,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 50.68955707550049,
+                "fin": 53.62825608253479,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 144.39301132946463,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 58.65780019760132,
+                "fin": 60.49251699447632,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 137.2525209636669,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 62.02454614639282,
+                "fin": 64.42597508430481,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 138.72039211308015,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            }
+        ],
+        "volea_reves": [
+            {
+                "inicio": 4.816164016723633,
+                "fin": 7.523605108261108,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_reves",
+                "max_elbow_angle": 81.3253942181514,
+                "posicion_cancha": "red",
+                "player_position": "2"
+            },
+            {
+                "inicio": 9.491298198699951,
+                "fin": 11.567103147506714,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_reves",
+                "max_elbow_angle": 90,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 55.15803003311157,
+                "fin": 56.68730020523071,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_reves",
+                "max_elbow_angle": 69.10263844701106,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            }
+        ],
+        "volea_derecha": [
+            {
+                "inicio": 16.237498998641968,
+                "fin": 18.475901126861572,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_derecha",
+                "max_elbow_angle": 75.011596998181,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 24.188680171966553,
+                "fin": 26.68185305595398,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_derecha",
+                "max_elbow_angle": 74.69276285971739,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 35.66076421737671,
+                "fin": 38.43730807304382,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_derecha",
+                "max_elbow_angle": 65.98807856543493,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 44.074897050857544,
+                "fin": 45.5794939994812,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_derecha",
+                "max_elbow_angle": 90,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            }
+        ],
+        "bandeja": [
+            {
+                "inicio": 19.608480215072632,
+                "fin": 22.681169986724854,
+                "max_velocidad": 50,
+                "movimiento_direccion": "bandeja",
+                "max_elbow_angle": 103.53294817013577,
+                "posicion_cancha": "red",
+                "player_position": "2"
+            }
+        ],
+        "derecha": [
+            {
+                "inicio": 32.398205041885376,
+                "fin": 34.39845299720764,
+                "max_velocidad": 50,
+                "movimiento_direccion": "derecha",
+                "max_elbow_angle": 54.48632322373165,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            },
+            {
+                "inicio": 46.98045206069946,
+                "fin": 48.549684047698975,
+                "max_velocidad": 50,
+                "movimiento_direccion": "derecha",
+                "max_elbow_angle": 15.960496846625647,
+                "posicion_cancha": "fondo",
+                "player_position": "2"
+            }
+        ]
+    },
+    "total_golpes": 17,
+    "video_duration": 73.38844203948975,
+    "ritmo": 27.797292643197032
+}

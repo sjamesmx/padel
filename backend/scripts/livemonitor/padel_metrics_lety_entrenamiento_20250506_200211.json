@@ -1,0 +1,127 @@
+{
+    "player_name": "Lety",
+    "session_type": "entrenamiento",
+    "detected_strokes": {
+        "smash": [
+            {
+                "inicio": 0.9930660724639893,
+                "fin": 2.754837989807129,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 179.09245627956955,
+                "posicion_cancha": "fondo",
+                "player_position": "1"
+            },
+            {
+                "inicio": 2.754837989807129,
+                "fin": 4.45439600944519,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 175.4283408326809,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            },
+            {
+                "inicio": 4.45439600944519,
+                "fin": 6.195616006851196,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 168.15446104868502,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            },
+            {
+                "inicio": 7.923375129699707,
+                "fin": 9.723267078399658,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 160.42252640764065,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            },
+            {
+                "inicio": 9.723267078399658,
+                "fin": 11.392178058624268,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 174.59906983362714,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            },
+            {
+                "inicio": 20.396728992462158,
+                "fin": null,
+                "max_velocidad": 50,
+                "movimiento_direccion": "smash",
+                "max_elbow_angle": 147.11271223272882,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            }
+        ],
+        "bandeja": [
+            {
+                "inicio": 6.195616006851196,
+                "fin": 7.923375129699707,
+                "max_velocidad": 50,
+                "movimiento_direccion": "bandeja",
+                "max_elbow_angle": 117.88622005515695,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            },
+            {
+                "inicio": 13.089291095733643,
+                "fin": 14.920284986495972,
+                "max_velocidad": 50,
+                "movimiento_direccion": "bandeja",
+                "max_elbow_angle": 103.42047339034397,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            }
+        ],
+        "derecha": [
+            {
+                "inicio": 11.392178058624268,
+                "fin": 13.089291095733643,
+                "max_velocidad": 50,
+                "movimiento_direccion": "derecha",
+                "max_elbow_angle": 55.89980226206949,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            }
+        ],
+        "reves": [
+            {
+                "inicio": 14.920284986495972,
+                "fin": 16.722028970718384,
+                "max_velocidad": 50,
+                "movimiento_direccion": "reves",
+                "max_elbow_angle": 47.92551413727585,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            },
+            {
+                "inicio": 16.722028970718384,
+                "fin": 18.48934507369995,
+                "max_velocidad": 50,
+                "movimiento_direccion": "reves",
+                "max_elbow_angle": 54.01793199214959,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            }
+        ],
+        "volea_reves": [
+            {
+                "inicio": 18.48934507369995,
+                "fin": 20.396728992462158,
+                "max_velocidad": 50,
+                "movimiento_direccion": "volea_reves",
+                "max_elbow_angle": 63.04949632495474,
+                "posicion_cancha": "fondo",
+                "player_position": "8"
+            }
+        ]
+    },
+    "total_golpes": 12,
+    "video_duration": 20.396728992462158,
+    "ritmo": 70.5995554744179
+}
