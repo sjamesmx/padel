@@ -1,0 +1,55 @@
+Instrucciones para Enviar la Notificación por Correo a jaime@padelyzer.com
+
+1. Abrir tu cliente de correo electrónico (por ejemplo, Gmail, Outlook).
+2. Crear un nuevo correo con los siguientes detalles:
+   - Destinatario: jaime@padelyzer.com
+   - Asunto: Padelyzer Listo para la Siguiente Iteración
+3. Copiar y pegar el contenido de formal_notification_email.txt en el cuerpo del correo:
+   - Contenido:
+Asunto: Padelyzer Listo para la Siguiente Iteración
+
+Estimado equipo de desarrollo,
+
+Les informo que la preparación para la siguiente iteración de Padelyzer ha sido completada. Los issues para los endpoints críticos están listos para ser importados a GitHub, asignados, e implementados.
+
+Detalles:
+
+Issues Generados:
+/api/v1/auth/signup: issues/issue-signup.md
+/api/v1/auth/login: issues/issue-login.md
+/api/v1/users/me: issues/issue-users-me.md
+/api/v1/users/{user_id}/profile: issues/issue-users-profile.md
+/api/v1/video/upload: issues/issue-video-upload.md
+Documentación:
+docs/testing.md: Incluye instrucciones para importar issues y un checklist final.
+NEXT_STEPS.md: Incluye un resumen tabular de los issues y próximas acciones.
+Script de Importación:
+import_issues.sh: Script para importar los issues a GitHub usando gh.
+Instrucciones:
+
+Importar los Issues:
+Usar el script import_issues.sh: ./import_issues.sh
+Alternativamente, importar manualmente siguiendo las instrucciones en docs/testing.md.
+Asignar los Issues:
+Asignar cada issue a los desarrolladores correspondientes.
+Revisar Cobertura:
+Consultar htmlcov/index.html para identificar áreas con baja cobertura.
+Comenzar la Implementación:
+Seguir las tareas técnicas en TECHNICAL_TASKS.md y los criterios en ACCEPTANCE_CRITERIA.md.
+Enlace al Repositorio:
+
+Si está disponible, añadir aquí (por ejemplo, https://github.com/usuario/padelyzer).
+Siguientes Pasos:
+
+Comenzar la implementación de la lógica real para los endpoints críticos.
+Validar la integración con Firestore.
+Mejorar mocks y cobertura de tests.
+Si tienen alguna pregunta, no duden en contactarme.
+
+Atentamente,
+[Tu Nombre]
+Arquitecto de Software
+
+4. Enviar el correo al destinatario jaime@padelyzer.com.
+
+Nota: Si el enlace al repositorio está disponible, actualizar el campo "Enlace al Repositorio" en el correo antes de enviarlo. 

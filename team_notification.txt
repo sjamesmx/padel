@@ -1,0 +1,1 @@
+Los issues para la siguiente iteración de Padelyzer están listos en el directorio issues/. Por favor, importar a GitHub usando import_issues.sh o manualmente, y asignar a los desarrolladores. Consultar docs/testing.md y NEXT_STEPS.md para instrucciones detalladas. 

@@ -1,0 +1,20 @@
+{
+  "include": [
+    "routes",
+    "tests",
+    "scripts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__"
+  ],
+  "ignore": [
+    "venv"
+  ],
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.9",
+  "venvPath": "/Users/jaime/pdzr/backend",
+  "venv": "venv",
+  "typeCheckingMode": "basic"
+} 
