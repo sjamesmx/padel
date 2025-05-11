@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.endpoints import video_analysis
+from app.api.v1.endpoints import video_analysis, auth, users
 from routes.profile import router as profile_router
 from routes.padel_iq.dashboard import router as dashboard_router
 from routes.onboarding import router as onboarding_router
@@ -42,6 +42,8 @@ app.include_router(profile_router, prefix="/api", tags=["profile"])
 app.include_router(dashboard_router, prefix="/api", tags=["dashboard"])
 app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
 app.include_router(matchmaking_router, prefix="/api", tags=["matchmaking"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 
 @app.get("/")
 async def root():

@@ -12,7 +12,7 @@ def initialize_firebase():
     logger.info("Starting firebase.py import process")
     # Obtener la ruta del directorio actual
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    cred_path = os.path.join(current_dir, "firebase-credentials.json")
+    cred_path = os.path.join(current_dir, "firebase-service-account.json")
     logger.info(f"Checking credential path: {cred_path}")
     
     try:

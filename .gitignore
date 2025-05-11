@@ -1,3 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 venv/
-backend/cred10may.json
-backend/config/firebase-credentials.json
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# Firebase
+firebase-service-account.json
+cred10may.json
+config/firebase-credentials.json
+tests/firebase-test-credentials.json
+
+# Test videos
+test_videos/
+
+# Model files
+*.pt
+*.tflite
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml

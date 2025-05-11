@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     MAX_VIDEO_SIZE: int = 100 * 1024 * 1024  # 100MB
     ALLOWED_VIDEO_TYPES: List[str] = ["video/mp4", "video/quicktime"]
     
+    # JWT
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 1 hora por defecto
+    SECRET_KEY: str = "supersecretkey123"
+    ALGORITHM: str = "HS256"
+    
     class Config:
         case_sensitive = True
 

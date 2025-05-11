@@ -34,4 +34,23 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    email: Optional[str] = None 
+    email: Optional[str] = None
+
+class PrivacySettings(BaseModel):
+    profile_visible: bool = True
+    show_email: bool = False
+    show_stats: bool = True
+
+class Preferences(BaseModel):
+    posicion_preferida: Optional[str] = None
+    notificaciones: Optional[bool] = True
+    idioma: Optional[str] = "es"
+
+class PrivacyUpdateRequest(BaseModel):
+    privacy: PrivacySettings
+
+class PreferencesUpdateRequest(BaseModel):
+    preferences: Preferences
+
+class DeleteAccountRequest(BaseModel):
+    password: str 
