@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends, Query
 from app.core.config import settings
 import logging
 from fastapi import HTTPException as RealHTTPException
@@ -9,6 +9,7 @@ from firebase_admin import firestore
 from app.core.deps import get_current_user
 from app.schemas.user import UserInDB
 import uuid
+from app.tasks import analyze_video
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,12 @@ class PadelIQRequest(BaseModel):
     tipo_video: str
     player_position: dict = {"side": "left", "zone": "back"}
     game_splits: dict = None
+
+class VideoAnalyzeRequest(BaseModel):
+    user_id: str
+    video_url: HttpUrl
+    tipo_video: str
+    player_position: dict = {"side": "left", "zone": "back"}
 
 # Modelo para la respuesta
 class VideoAnalysisResponse(BaseModel):
@@ -347,6 +354,195 @@ def calculate_stroke_effectiveness(metrics: dict) -> dict:
         "volea": 0.75,
         "smash": 0.85
     }
+
+# Endpoint para análisis asíncrono
+@router.post("/analyze")
+async def start_video_analysis(data: VideoAnalyzeRequest, current_user: UserInDB = Depends(get_current_user)):
+    try:
+        task = analyze_video.delay(data.user_id, str(data.video_url), data.tipo_video, data.player_position)
+        logger.info(f"Análisis asíncrono iniciado para user_id: {data.user_id}, task_id: {task.id}")
+        return {"task_id": task.id, "status": "pending", "message": "Análisis iniciado"}
+    except Exception as e:
+        logger.error(f"Error iniciando análisis asíncrono: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error iniciando análisis: {str(e)}")
+
+@router.get("/analyze/{task_id}")
+async def get_analysis_status(task_id: str, current_user: UserInDB = Depends(get_current_user)):
+    try:
+        task = analyze_video.AsyncResult(task_id)
+        if task.state == "PENDING":
+            return {"task_id": task_id, "status": "pending", "message": "Análisis en progreso"}
+        elif task.state == "SUCCESS":
+            result = task.result
+            if isinstance(result, dict) and "error" in result:
+                return {"task_id": task_id, "status": "failed", "error": result["error"]}
+            return {"task_id": task_id, "status": "completed", "result": result}
+        elif task.state == "FAILURE":
+            return {"task_id": task_id, "status": "failed", "error": str(task.result)}
+        else:
+            return {"task_id": task_id, "status": task.state, "info": str(task.info)}
+    except Exception as e:
+        logger.error(f"Error consultando estado del análisis: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error consultando estado: {str(e)}")
+
+@router.get("/preview/{video_id}")
+async def preview_video(
+    video_id: str,
+    current_user: UserInDB = Depends(get_current_user),
+    start_time: int = Query(0, ge=0, description="Tiempo de inicio en segundos"),
+    duration: int = Query(10, ge=1, le=30, description="Duración de la previsualización en segundos")
+):
+    """
+    Genera una previsualización del video antes del análisis.
+    - Permite especificar el tiempo de inicio y duración
+    - Genera una versión de menor calidad para previsualización
+    - Incluye metadatos básicos del video
+    """
+    try:
+        db = get_db()
+        video_doc = db.collection("videos").document(video_id).get()
+        
+        if not video_doc.exists:
+            raise HTTPException(status_code=404, detail="Video no encontrado")
+            
+        video_data = video_doc.to_dict()
+        
+        # Verificar propiedad del video
+        if video_data.get("user_id") != current_user.id:
+            raise HTTPException(status_code=403, detail="No autorizado para ver este video")
+            
+        # Verificar si el video está disponible
+        if video_data.get("status") not in ["uploaded", "processing", "completed"]:
+            raise HTTPException(status_code=400, detail="Video no disponible para previsualización")
+            
+        # Obtener metadatos del video
+        video_duration = video_data.get("duration_seconds", 0)
+        if start_time >= video_duration:
+            raise HTTPException(status_code=400, detail="Tiempo de inicio fuera de rango")
+            
+        # Ajustar duración si excede el final del video
+        if start_time + duration > video_duration:
+            duration = video_duration - start_time
+            
+        # Generar URL de previsualización
+        preview_url = f"https://storage.padzr.com/previews/{video_id}_{start_time}_{duration}.mp4"
+        
+        # Generar thumbnail
+        thumbnail_url = f"https://storage.padzr.com/thumbnails/{video_id}_{start_time}.jpg"
+        
+        return {
+            "video_id": video_id,
+            "preview_url": preview_url,
+            "thumbnail_url": thumbnail_url,
+            "start_time": start_time,
+            "duration": duration,
+            "original_duration": video_duration,
+            "metadata": {
+                "filename": video_data.get("filename"),
+                "content_type": video_data.get("content_type"),
+                "size_bytes": video_data.get("size_bytes"),
+                "uploaded_at": video_data.get("uploaded_at")
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al generar previsualización: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al generar previsualización")
+
+@router.post("/analyze/{task_id}/retry")
+async def retry_analysis(
+    task_id: str,
+    current_user: UserInDB = Depends(get_current_user),
+    force: bool = Query(False, description="Forzar reintento incluso si el análisis no falló")
+):
+    """
+    Reintenta un análisis de video que falló previamente.
+    - Verifica el estado actual del análisis
+    - Permite forzar el reintento si es necesario
+    - Mantiene un registro de intentos
+    """
+    try:
+        db = get_db()
+        
+        # Obtener información del análisis original
+        analysis_doc = db.collection("video_analysis").document(task_id).get()
+        if not analysis_doc.exists:
+            raise HTTPException(status_code=404, detail="Análisis no encontrado")
+            
+        analysis_data = analysis_doc.to_dict()
+        
+        # Verificar propiedad del análisis
+        if analysis_data.get("user_id") != current_user.id:
+            raise HTTPException(status_code=403, detail="No autorizado para reintentar este análisis")
+            
+        # Verificar estado actual
+        current_status = analysis_data.get("analysis_status")
+        if current_status == "completed" and not force:
+            raise HTTPException(
+                status_code=400,
+                detail="El análisis ya está completo. Use force=true para forzar el reintento."
+            )
+            
+        # Verificar número de intentos
+        retry_count = analysis_data.get("retry_count", 0)
+        if retry_count >= 3 and not force:
+            raise HTTPException(
+                status_code=400,
+                detail="Se ha alcanzado el límite de reintentos. Use force=true para forzar el reintento."
+            )
+            
+        # Obtener datos del video
+        video_id = analysis_data.get("video_id")
+        video_doc = db.collection("videos").document(video_id).get()
+        if not video_doc.exists:
+            raise HTTPException(status_code=404, detail="Video no encontrado")
+            
+        video_data = video_doc.to_dict()
+        
+        # Preparar datos para el nuevo análisis
+        analysis_request = VideoAnalyzeRequest(
+            user_id=current_user.id,
+            video_url=video_data.get("video_url"),
+            tipo_video=analysis_data.get("tipo_video"),
+            player_position=analysis_data.get("player_position", {"side": "left", "zone": "back"})
+        )
+        
+        # Iniciar nuevo análisis
+        new_task = analyze_video.delay(
+            analysis_request.user_id,
+            str(analysis_request.video_url),
+            analysis_request.tipo_video,
+            analysis_request.player_position
+        )
+        
+        # Actualizar estado en la base de datos
+        db.collection("video_analysis").document(task_id).update({
+            "analysis_status": "retrying",
+            "retry_count": retry_count + 1,
+            "last_retry_at": firestore.SERVER_TIMESTAMP,
+            "last_retry_task_id": new_task.id,
+            "retry_history": firestore.ArrayUnion([{
+                "task_id": new_task.id,
+                "timestamp": firestore.SERVER_TIMESTAMP,
+                "reason": "manual_retry" if force else "error_retry"
+            }])
+        })
+        
+        return {
+            "task_id": new_task.id,
+            "original_task_id": task_id,
+            "status": "retrying",
+            "retry_count": retry_count + 1,
+            "message": "Análisis reiniciado correctamente"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al reintentar análisis: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al reintentar análisis")
 
 # Ejemplo de uso en un endpoint:
 # @router.get("/video/firestore_test")

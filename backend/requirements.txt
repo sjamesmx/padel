@@ -26,3 +26,5 @@ email-validator==2.0.0
 aiofiles==23.2.1
 python-dotenv==1.0.0
 pytest-mock==3.14.0
+celery==5.4.0
+redis==5.0.8

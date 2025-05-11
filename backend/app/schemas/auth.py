@@ -20,6 +20,14 @@ class LogoutRequest(BaseModel):
     """Petición para cerrar sesión (invalidar refresh token)."""
     refresh_token: str = Field(..., example="refresh-token-uuid")
 
+class EmailVerificationRequest(BaseModel):
+    """Petición para verificar email."""
+    token: str = Field(..., example="verification-token-123")
+
+class ResendVerificationRequest(BaseModel):
+    """Petición para reenviar email de verificación."""
+    email: EmailStr = Field(..., example="testuser@example.com")
+
 class ForgotPasswordRequest(BaseModel):
     """Petición para solicitar recuperación de contraseña."""
     email: EmailStr = Field(..., example="testuser@example.com")
