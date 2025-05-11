@@ -23,6 +23,24 @@ class PadelIQRequest(BaseModel):
     player_position: dict = {"side": "left", "zone": "back"}
     game_splits: dict = None
 
+def determine_force_category(padel_iq: float, tecnica: float, ritmo: float, fuerza: float) -> str:
+    """Determina la categoría de fuerza del jugador basada en sus métricas."""
+    # Primera fuerza: Padel IQ > 85 y todas las métricas > 80
+    if padel_iq > 85 and tecnica > 80 and ritmo > 80 and fuerza > 80:
+        return "primera_fuerza"
+    # Segunda fuerza: Padel IQ > 75 y todas las métricas > 70
+    elif padel_iq > 75 and tecnica > 70 and ritmo > 70 and fuerza > 70:
+        return "segunda_fuerza"
+    # Tercera fuerza: Padel IQ > 65 y todas las métricas > 60
+    elif padel_iq > 65 and tecnica > 60 and ritmo > 60 and fuerza > 60:
+        return "tercera_fuerza"
+    # Cuarta fuerza: Padel IQ > 45 y todas las métricas > 40
+    elif padel_iq > 45 and tecnica > 40 and ritmo > 40 and fuerza > 40:
+        return "cuarta_fuerza"
+    # Quinta fuerza: resto de jugadores
+    else:
+        return "quinta_fuerza"
+
 @router.post("/api/calculate_padel_iq")
 async def calculate_padel_iq(data: PadelIQRequest):
     """Procesa un video y calcula métricas de Padel IQ."""
@@ -95,7 +113,7 @@ async def calculate_padel_iq(data: PadelIQRequest):
         padel_iq = (tecnica * 0.4 + ritmo * 0.3 + fuerza * 0.2 + repeticion * 0.1) + 15
         padel_iq = min(padel_iq, 100)
         player_level = "Principiante" if padel_iq < 30 else "Intermedio" if padel_iq < 60 else "Avanzado"
-        force_category = "quinta_fuerza"
+        force_category = determine_force_category(padel_iq, tecnica, ritmo, fuerza)
 
         # Calcular efectividad en red (solo para videos de juego)
         efectividad_red = (golpes_exitosos_en_red / golpes_en_red * 100) if golpes_en_red > 0 else 0
