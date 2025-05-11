@@ -36,10 +36,18 @@ class GamificationResponse(BaseModel):
     next_level_points: int
     current_level_points: int
 
+def get_db():
+    try:
+        return firestore.client()
+    except ValueError as e:
+        logger.error(f"Error inicializando Firestore: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error inicializando Firestore")
+
 @router.get("/{user_id}", response_model=GamificationResponse)
 async def get_gamification(
     user_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: firestore.Client = Depends(get_db)
 ):
     """
     Obtiene el estado de gamificación de un usuario.
@@ -47,7 +55,6 @@ async def get_gamification(
     if user_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para ver gamificación de otro usuario")
 
-    db = firestore.client()
     try:
         gamification = db.collection("gamification").document(user_id).get()
         
@@ -84,7 +91,8 @@ async def add_points(
     user_id: str,
     points: int = Field(..., gt=0),
     reason: str = Field(..., min_length=1),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: firestore.Client = Depends(get_db)
 ):
     """
     Añade puntos a un usuario y actualiza su nivel si es necesario.
@@ -92,7 +100,6 @@ async def add_points(
     if user_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para añadir puntos a otro usuario")
 
-    db = firestore.client()
     try:
         gamification_ref = db.collection("gamification").document(user_id)
         gamification = gamification_ref.get()
@@ -149,7 +156,8 @@ async def add_points(
 @router.get("/{user_id}/achievements")
 async def get_achievements(
     user_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: firestore.Client = Depends(get_db)
 ):
     """
     Obtiene los logros disponibles y desbloqueados del usuario.
@@ -157,7 +165,6 @@ async def get_achievements(
     if user_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para ver logros de otro usuario")
 
-    db = firestore.client()
     try:
         # Obtener logros del usuario
         user_achievements = db.collection("gamification").document(user_id).get()

@@ -1,36 +1,34 @@
-from flask import Blueprint, request
+from fastapi import APIRouter, Depends, HTTPException
 from firebase_admin import firestore
 import logging
-import uuid
 
-profile_bp = Blueprint('profile', __name__)
-
-# Configurar logging
+# Configuración de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@profile_bp.route('/api/get_profile', methods=['GET'])
-def get_profile():
-    request_id = "profile-" + str(uuid.uuid4())
-    logger.info(f"Starting get_profile request [Request ID: {request_id}]")
-    
-    # Obtener el user_id de los query parameters
-    user_id = request.args.get('user_id')
-    if not user_id:
-        logger.warning(f"No user_id provided [Request ID: {request_id}]")
-        return {"error": "user_id is required"}, 400
-        
+# Definir el router de FastAPI
+router = APIRouter()
+
+def get_db():
     try:
-        db = firestore.client()
-        logger.info(f"Attempting to fetch user {user_id} [Request ID: {request_id}]")
-        user_ref = db.collection('users').document(user_id)
-        user_doc = user_ref.get()
-        if user_doc.exists:
-            user_data = user_doc.to_dict()
-            logger.info(f"User profile retrieved: {user_data} [Request ID: {request_id}]")
-            return user_data, 200
-        logger.warning(f"User not found in Firestore [Request ID: {request_id}]")
-        return {"error": "User not found", "details": f"No user found with ID: {user_id}"}, 404
+        return firestore.client()
+    except ValueError as e:
+        logger.error(f"Error inicializando Firestore: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error inicializando Firestore")
+
+# Endpoint para obtener el perfil del usuario
+@router.get("/profile")
+async def get_profile(db: firestore.Client = Depends(get_db)):
+    """Obtiene el perfil del usuario."""
+    try:
+        logger.info("Obteniendo perfil del usuario")
+        # Aquí puedes usar db para acceder a Firestore
+        return {
+            "message": "Perfil del usuario",
+            "user_id": "testuser",
+            "email": "test@example.com",
+            "level": "intermediate"
+        }
     except Exception as e:
-        logger.error(f"Error in get_profile: {str(e)} [Request ID: {request_id}]", exc_info=True)
-        return {"error": "Internal server error", "details": str(e)}, 500
+        logger.error(f"Error obteniendo el perfil: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error obteniendo el perfil: {str(e)}")

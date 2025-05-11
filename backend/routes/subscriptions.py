@@ -37,10 +37,18 @@ class SubscriptionResponse(BaseModel):
     currency: str
     features: List[str]
 
+def get_db():
+    try:
+        return firestore.client()
+    except ValueError as e:
+        logger.error(f"Error inicializando Firestore: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error inicializando Firestore")
+
 @router.get("/{user_id}", response_model=List[SubscriptionResponse])
 async def get_subscriptions(
     user_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: firestore.Client = Depends(get_db)
 ):
     """
     Obtiene las suscripciones activas de un usuario.
@@ -48,8 +56,8 @@ async def get_subscriptions(
     if user_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para ver suscripciones de otro usuario")
 
-    db = firestore.client()
     try:
+        logger.info("Obteniendo información de suscripciones")
         subscriptions = db.collection("subscriptions")\
             .where("user_id", "==", user_id)\
             .where("status", "in", ["active", "trial"])\
@@ -66,7 +74,8 @@ async def create_subscription(
     plan_id: str = Field(..., description="ID del plan de suscripción"),
     payment_method: str = Field(..., description="Método de pago"),
     auto_renew: bool = True,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: firestore.Client = Depends(get_db)
 ):
     """
     Crea una nueva suscripción para un usuario.
@@ -74,7 +83,6 @@ async def create_subscription(
     if user_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para crear suscripciones en nombre de otro usuario")
 
-    db = firestore.client()
     try:
         # Verificar si el plan existe
         plan = db.collection("subscription_plans").document(plan_id).get()
@@ -134,12 +142,12 @@ async def create_subscription(
 @router.post("/{subscription_id}/cancel")
 async def cancel_subscription(
     subscription_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: firestore.Client = Depends(get_db)
 ):
     """
     Cancela una suscripción activa.
     """
-    db = firestore.client()
     try:
         subscription = db.collection("subscriptions").document(subscription_id).get()
         
@@ -170,11 +178,10 @@ async def cancel_subscription(
         raise HTTPException(status_code=500, detail="Error al cancelar la suscripción")
 
 @router.get("/plans")
-async def get_subscription_plans():
+async def get_subscription_plans(db: firestore.Client = Depends(get_db)):
     """
     Obtiene los planes de suscripción disponibles.
     """
-    db = firestore.client()
     try:
         plans = db.collection("subscription_plans").get()
         return [p.to_dict() for p in plans]

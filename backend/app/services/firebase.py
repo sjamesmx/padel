@@ -46,4 +46,11 @@ def get_firebase_client():
         return google_firestore.Client()
     except Exception as e:
         logger.error(f"Error getting Firestore client: {str(e)}")
-        raise 
+        raise
+
+def get_db():
+    try:
+        return firestore.client()
+    except Exception as e:
+        logging.error(f"Error getting Firestore client: {str(e)}")
+        return None 

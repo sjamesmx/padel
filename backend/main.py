@@ -1,28 +1,31 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.padel_iq import router as padel_iq_router
+from app.api.v1.endpoints import video_analysis
 from routes.profile import router as profile_router
-from routes.matchmaking import router as matchmaking_router
+from routes.padel_iq.dashboard import router as dashboard_router
 from routes.onboarding import router as onboarding_router
-from routes.friends import router as friends_router
-from routes.social_wall import router as social_wall_router
-from routes.gamification import router as gamification_router
-from routes.subscriptions import router as subscriptions_router
-import logging
-from pydantic import ConfigDict
-
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Configuración de Pydantic
-model_config = ConfigDict(arbitrary_types_allowed=True)
+from routes.matchmaking import router as matchmaking_router
+from app.config.firebase import initialize_firebase
+from app.config.logging import setup_logging
 
 app = FastAPI(
     title="Padelyzer API",
     description="API para el análisis de pádel y gestión de usuarios",
     version="1.0.0"
 )
+
+logger = setup_logging()
+db = None
+
+@app.on_event("startup")
+async def startup_event():
+    global db
+    db = initialize_firebase()
+    logger.info("Firebase inicializado correctamente")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Servidor FastAPI detenido")
 
 # Configurar CORS
 app.add_middleware(
@@ -34,19 +37,15 @@ app.add_middleware(
 )
 
 # Incluir routers
-app.include_router(padel_iq_router)
-app.include_router(profile_router)
-app.include_router(matchmaking_router)
-app.include_router(onboarding_router)
-app.include_router(friends_router)
-app.include_router(social_wall_router)
-app.include_router(gamification_router)
-app.include_router(subscriptions_router)
+app.include_router(video_analysis.router, prefix="/api/v1/video", tags=["video_analysis"])
+app.include_router(profile_router, prefix="/api", tags=["profile"])
+app.include_router(dashboard_router, prefix="/api", tags=["dashboard"])
+app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
+app.include_router(matchmaking_router, prefix="/api", tags=["matchmaking"])
 
 @app.get("/")
 async def root():
-    """Endpoint raíz para verificar que la API está funcionando."""
-    return {"status": "ok", "message": "Padelyzer API is running"}
+    return {"message": "Padelyzer API"}
 
 @app.get("/health")
 async def health_check():

@@ -24,6 +24,13 @@ class FriendshipResponse(BaseModel):
     user_id_1: str
     user_id_2: str
 
+def get_db():
+    try:
+        return firestore.client()
+    except ValueError as e:
+        logger.error(f"Error inicializando Firestore: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error inicializando Firestore")
+
 @router.post("/request", response_model=FriendshipResponse)
 async def send_friend_request(
     request: FriendRequest,
@@ -35,7 +42,7 @@ async def send_friend_request(
     if request.proposer_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para enviar solicitudes en nombre de otro usuario")
 
-    db = firestore.client()
+    db = get_db()
     
     # Verificar si ya existe una solicitud pendiente
     existing_request = db.collection("friendships")\
@@ -77,7 +84,7 @@ async def accept_friend_request(
     if request.receiver_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para aceptar solicitudes en nombre de otro usuario")
 
-    db = firestore.client()
+    db = get_db()
     friendship = db.collection("friendships")\
         .where("user_id_1", "==", request.proposer_id)\
         .where("user_id_2", "==", request.receiver_id)\
@@ -111,7 +118,7 @@ async def get_friends(
     if user_id != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="No autorizado para ver amigos de otro usuario")
 
-    db = firestore.client()
+    db = get_db()
     try:
         # Obtener amigos donde el usuario es user_id_1
         friends_1 = db.collection("friendships")\
@@ -156,7 +163,7 @@ async def remove_friendship(
     """
     Elimina una amistad existente.
     """
-    db = firestore.client()
+    db = get_db()
     try:
         friendship = db.collection("friendships").document(friendship_id).get()
         if not friendship.exists:
@@ -171,4 +178,14 @@ async def remove_friendship(
         return {"status": "success", "message": "Amistad eliminada correctamente"}
     except Exception as e:
         logger.error(f"Error al eliminar amistad: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error al eliminar la amistad") 
+        raise HTTPException(status_code=500, detail="Error al eliminar la amistad")
+
+@router.get("/friends")
+async def get_friends_endpoint(db: firestore.Client = Depends(get_db)):
+    try:
+        logger.info("Obteniendo información de amigos")
+        # Aquí puedes usar db para acceder a Firestore
+        return {"message": "Friends endpoint"}
+    except Exception as e:
+        logger.error(f"Error en friends: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error en friends: {str(e)}") 

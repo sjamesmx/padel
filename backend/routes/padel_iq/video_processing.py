@@ -285,11 +285,11 @@ def validate_video_resolution(video_path):
         raise ValueError("La resolución del video debe ser al menos 720p")
     return True
 
-def store_metrics_in_firestore(client, user_id, metrics_data):
+def store_metrics_in_firestore(db, user_id, metrics_data):
     """Almacena las métricas en Firestore."""
     try:
         # Almacenar golpes del jugador
-        strokes_ref = client.collection('player_strokes').document()
+        strokes_ref = db.collection('player_strokes').document()
         strokes_ref.set({
             'user_id': user_id,
             'timestamp': datetime.now(),
@@ -297,7 +297,7 @@ def store_metrics_in_firestore(client, user_id, metrics_data):
         })
 
         # Almacenar historial de Padel IQ
-        history_ref = client.collection('padel_iq_history').document()
+        history_ref = db.collection('padel_iq_history').document()
         history_ref.set({
             'user_id': user_id,
             'timestamp': datetime.now(),

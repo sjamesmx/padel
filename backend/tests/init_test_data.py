@@ -6,8 +6,11 @@ import uuid
 import cv2
 import numpy as np
 from datetime import datetime
-from firebase_admin import firestore, initialize_app
+from firebase_admin import firestore
 from config.firestore_schema import validate_document, COLLECTIONS
+
+def get_db():
+    return firestore.client()
 
 def initialize_firestore():
     """Inicializa la conexión con Firestore."""

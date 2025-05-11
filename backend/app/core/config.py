@@ -17,14 +17,6 @@ class Settings(BaseSettings):
         "http://localhost:8080",  # Frontend production
     ]
     
-    # Firebase
-    FIREBASE_CREDENTIALS: str = os.getenv("FIREBASE_CREDENTIALS", "")
-    
-    # JWT
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key")
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
     # Video Processing
     MAX_VIDEO_SIZE: int = 100 * 1024 * 1024  # 100MB
     ALLOWED_VIDEO_TYPES: List[str] = ["video/mp4", "video/quicktime"]

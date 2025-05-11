@@ -1,3 +1,4 @@
+from fastapi import APIRouter, Depends, HTTPException
 import logging
 from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
@@ -8,10 +9,14 @@ from services.notification_service import send_notification
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-matchmaking_bp = Blueprint('matchmaking', __name__)
+router = APIRouter()
 
-# Firestore client
-db = firestore.client()
+def get_db():
+    try:
+        return firestore.client()
+    except ValueError as e:
+        logger.error(f"Error inicializando Firestore: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error inicializando Firestore")
 
 def calculate_distance(loc1, loc2):
     """Calcula la distancia aproximada entre dos ubicaciones (latitud, longitud)."""
@@ -23,8 +28,17 @@ def calculate_distance(loc1, loc2):
     distance = ((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) ** 0.5
     return distance
 
-@matchmaking_bp.route('/api/matchmaking/find_matches', methods=['POST'])
-def find_matches():
+@router.get("/matchmaking")
+async def get_matchmaking(db: firestore.Client = Depends(get_db)):
+    try:
+        logger.info("Obteniendo información de matchmaking")
+        return {"message": "Matchmaking del usuario"}
+    except Exception as e:
+        logger.error(f"Error en matchmaking: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error en matchmaking: {str(e)}")
+
+@router.post("/matchmaking/find_matches")
+async def find_matches():
     """Encuentra jugadores compatibles para un partido."""
     data = request.get_json()
     user_id = data.get('user_id')
@@ -110,8 +124,8 @@ def find_matches():
     logger.info(f"Encontrados {len(compatible_users)} usuarios compatibles para {user_id}")
     return jsonify({'compatible_users': compatible_users}), 200
 
-@matchmaking_bp.route('/api/matchmaking/send_request', methods=['POST'])
-def send_request():
+@router.post("/matchmaking/send_request")
+async def send_request():
     """Envía una solicitud de partido a otro usuario."""
     data = request.get_json()
     user_id = data.get('user_id')
@@ -147,8 +161,8 @@ def send_request():
     logger.info(f"Solicitud de partido enviada de {user_id} a {target_user_id}")
     return jsonify({'message': 'Solicitud de partido enviada exitosamente'}), 200
 
-@matchmaking_bp.route('/api/matchmaking/respond_request', methods=['POST'])
-def respond_request():
+@router.post("/matchmaking/respond_request")
+async def respond_request():
     """Responde a una solicitud de partido (aceptar o rechazar)."""
     data = request.get_json()
     user_id = data.get('user_id')
@@ -194,8 +208,8 @@ def respond_request():
     logger.info(f"Solicitud {request_id} respondida por {user_id}: {response}")
     return jsonify({'message': f"Solicitud {response} exitosamente"}), 200
 
-@matchmaking_bp.route('/api/matchmaking/get_requests', methods=['GET'])
-def get_requests():
+@router.get("/matchmaking/get_requests")
+async def get_requests():
     """Obtiene las solicitudes de partido pendientes para un usuario."""
     user_id = request.args.get('user_id')
     if not user_id:
